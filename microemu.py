@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import time, os, json, sys, asyncio, builtins
+import time, os, gc, json, sys, asyncio, builtins
 
 class utime:
     @staticmethod
@@ -83,14 +83,33 @@ class micropython:
     def const(x):
         return x
 
-def _patch(orig, micro):
+    @staticmethod
+    def native(f):
+        return f
+
+    @staticmethod
+    def viper(f):
+        return f
+
+
+class _gc:
+    @staticmethod
+    def mem_alloc():
+        return 0
+
+    @staticmethod
+    def mem_free():
+        return 1024 * 1024 * 1024
+
+def _monkey_patch(orig, micro):
     for attr in dir(micro):
         if not attr.startswith("_"):
             setattr(orig, attr, getattr(micro, attr))
 
 def inject_shim():
-    _patch(time, utime)
-    _patch(asyncio, uasyncio)
+    _monkey_patch(gc, _gc)
+    _monkey_patch(time, utime)
+    _monkey_patch(asyncio, uasyncio)
 
     sys.modules["utime"] = time
     sys.modules["uos"] = os
@@ -109,6 +128,7 @@ def main():
 
     if len(sys.argv) < 2:
         import code, readline, rlcompleter
+
         readline.parse_and_bind("tab: complete")
         code.interact("MicroPython emulation")
         sys.exit(0)
@@ -122,6 +142,7 @@ def main():
     # Load and execute the script
     try:
         import runpy
+
         runpy.run_path(script_name, run_name="__main__")
     except FileNotFoundError:
         print(f"Error: File '{script_name}' not found.")

@@ -4,22 +4,17 @@ A simple MicroPython emulator.
 It monkey-patches `Python 3` default environment, adding `MicroPython`-specific functionality:
 
 - `micropython`
-  - const
+  - const, viper, native
 - `time`
-  - ticks_us
-  - ticks_ms
-  - ticks_diff
-  - ticks_add
-  - sleep_ms
-  - sleep_us (dummy)
+  - ticks_us, ticks_ms, ticks_diff, ticks_add
+  - sleep_ms, sleep_us
 - `asyncio`
   - sleep_ms
 - `machine`
-  - Pin
-  - ADC
-  - reset
-  - freq
-- `network` (dummy)
+  - Pin, ADC, reset, freq
+- `gc`
+  - mem_alloc, mem_free
+- `network` (empty for now)
 
 ## Installing
 
